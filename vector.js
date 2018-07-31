@@ -28,6 +28,10 @@ function Vector(x, y) {
     return Math.atan2(this.y, this.x);
   };
 
+  this.setAngle = function() {
+    // TO DO 
+  };
+
   this.setMagnitude = function(length) {
 
   };

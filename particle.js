@@ -1,14 +1,14 @@
 function Particle(position, velocity, radius, friction, mass) {
   this.position = position || new Vector();
   this.velocity = velocity || new Vector();
-  this.friction = friction || 0.7;
+  this.friction = friction || 0.98;
   this.mass = mass || 1;
   this.radius = radius || this.mass;
   this.stop = false;
 
   this.update = function() {
     if(!this.stop) {
-      //this.velocity.setLength(this.velocity.getLength() * this.friction);
+      this.velocity.setLength(this.velocity.getLength() * this.friction);
       this.position.addTo(this.velocity);
     }
   };

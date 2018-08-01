@@ -4,7 +4,7 @@ window.onload = function() {
   context = canvas.getContext('2d'),
   width = canvas.width = window.innerWidth,
   height = canvas.height = window.innerHeight,
-  gravity = new Vector(0, 0.8);
+  gravity = new Vector(0, 1);
   var selectedParticle;
   var thrust = new Vector(0,0);
 
@@ -19,6 +19,8 @@ window.onload = function() {
   var b = new Particle(new Vector((width / 2) - 200, height / 2), null, 20);
   var c = new Particle(new Vector((width / 2) - 200, height / 2), null, 30);
 
+  var d = new Particle(new Vector((width / 2) - 200, height / 2), null, 40);
+  var e = new Particle(new Vector((width / 2) - 200, height / 2), null, 40);
 
   objects.push(p1);
   objects.push(p2);
@@ -27,6 +29,9 @@ window.onload = function() {
   objects.push(a);
   objects.push(b);
   objects.push(c);
+
+  objects.push(d);
+  objects.push(e);
 
   var k = 0.1;
 
@@ -59,6 +64,7 @@ window.onload = function() {
     objects.forEach(function(obj) {
       if(obj.within(event.clientX, event.clientY)) {
         selectedParticle = obj;
+        selectedParticle.velocity = new Vector();
         return;
       }
     });
@@ -67,8 +73,8 @@ window.onload = function() {
   document.body.addEventListener('mousemove', function(event) {
     if(selectedParticle) {
       selectedParticle.stop = true;
-      selectedParticle.velocity = new Vector();
-      selectedParticle.velocity.addTo(new Vector(event.movementX, event.movementY));
+
+      selectedParticle.velocity = new Vector(event.movementX, event.movementY);
       selectedParticle.position = new Vector(event.clientX, event.clientY);
     }
   });
@@ -92,25 +98,27 @@ window.onload = function() {
     var distance = p1.position.subtract(p2.position);
     distance.setLength(distance.getLength() - seperation);
     var springForce = distance.multiply(k);
+    if(!p2.stop)
     p2.velocity.addTo(springForce);
+    if(!p1.stop)
     p1.velocity.subtractFrom(springForce);
   }
 
   function edgeHandling(object) {
-    if(object.position.y + object.radius >= height) {
+    if(object.position.y + object.radius > height) {
       object.position.y = height - object.radius;
       object.velocity.y = -object.velocity.y;
-      object.velocity.setLength(object.velocity.getLength() * 0.8);
+      //object.velocity.setLength(object.velocity.getLength() * 0.8);
     }
     if(object.position.x + object.radius >= width) {
       object.position.x = width - object.radius;
       object.velocity.x = -object.velocity.x;
-      object.velocity.setLength(object.velocity.getLength() * 0.8);
+      //object.velocity.setLength(object.velocity.getLength() * 0.8);
 
     } else if(object.position.x <= object.radius) {
       object.position.x = object.radius;
       object.velocity.x = -object.velocity.x;
-      object.velocity.setLength(object.velocity.getLength() * 0.8);
+      //object.velocity.setLength(object.velocity.getLength() * 0.8);
     }
   }
 
@@ -133,18 +141,22 @@ window.onload = function() {
   function render() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     objects.forEach(function(obj) {
-      obj.velocity.addTo(thrust);
-      obj.velocity.addTo(gravity);
-      obj.update();
+      if(!obj.stop) {
+        obj.velocity.addTo(thrust);
+        obj.velocity.addTo(gravity);
+        obj.update();
+      }
 
     });
 
     spring(a, b, 200);
     spring(b, c, 200);
     spring(c, a, 200);
+    spring(d, e, 300);
     drawLine(context, a, b);
     drawLine(context, b, c);
     drawLine(context, c, a);
+    drawLine(context, d, e);
 
     //link(b, c, 200);
     //drawLine(context, b, c);
@@ -153,7 +165,6 @@ window.onload = function() {
     objects.forEach(function(obj) {
       edgeHandling(obj);
       obj.draw(context);
-      var direction =
       drawLineVector(context, obj.position, obj.position.add(obj.velocity.multiply(3)));
     });
 
